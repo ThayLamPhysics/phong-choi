@@ -2139,6 +2139,10 @@
         stats.taken = pool.length;
         return {
             quiz: {
+                // Dấu nhận dạng của lần dựng đề này. Máy học sinh tải đề sẵn từ
+                // lúc còn ở sảnh chờ rồi giữ trong máy; nhờ `v` mà nó biết bản
+                // đang giữ có còn đúng không khi thầy cô đổi đề hoặc xáo lại.
+                v: Math.random().toString(36).slice(2, 8) + pool.length,
                 t: clean(opt.title) || 'Phòng ôn tập',
                 // 0 = KHÔNG giới hạn giờ, và đó là một lựa chọn thật sự — đừng
                 // gộp chung với "thầy cô chưa chọn gì" rồi thay bằng mặc định.
@@ -2363,6 +2367,20 @@
                 LiveNet.emote(PIN, MYID, b.dataset.e).catch(function () { });
             });
 
+            mountPoller();
+        }
+
+        /**
+         * Nhịp hỏi ở sảnh chờ.
+         *
+         * Phòng chưa có đề thì cứ giãn tới 20 giây cho đỡ tốn hạn mức — chưa
+         * có gì để chờ cả. Nhưng khi thầy cô đã chọn xong đề thì sắp bắt đầu
+         * tới nơi, mà giãn 20 giây nghĩa là có em biết muộn tới 20 giây so với
+         * bạn ngồi cạnh. Lúc đó siết lại còn 8 giây.
+         */
+        let lobbyMax = 20000, tightened = false;
+        function mountPoller() {
+            if (poller) poller.stop();
             poller = LiveNet.Poller(PIN, function (d) {
                 const players = d.players || [];
                 stage.sync(players);
@@ -2373,18 +2391,25 @@
                     ixOn = d.fx;
                     $('ixHint').style.display = d.fx && players.length > 1 ? '' : 'none';
                 }
+                prefetchQuiz(d.quiz);
+                if (d.quiz && d.quiz.v && !tightened && d.status === 'lobby') {
+                    tightened = true; lobbyMax = 8000;
+                    setTimeout(mountPoller, 0);      // dựng lại vòng hỏi với nhịp mới
+                }
                 if (!players.some(p => p.id === MYID)) {
                     $('waitMsg').className = ''; $('waitMsg').textContent = '⚠️ Em đã bị mời ra khỏi phòng.';
                 } else if (d.status === 'playing') {
                     $('waitMsg').className = ''; $('waitMsg').textContent = '🎬 Bài làm sắp bắt đầu!';
                     enterQuiz();
+                } else if (PRE) {
+                    $('waitMsg').className = ''; $('waitMsg').textContent = '✅ Đã nhận đề, chờ thầy cô bắt đầu';
                 }
             }, {
                 // Màn hình lớp mới là cái cả lớp nhìn, nên để nó hỏi dày.
                 // Điện thoại từng em hỏi thưa hơn, và giãn tới 20s khi phòng
                 // đứng yên — đo thật cho thấy đây là chỗ ngốn quota nhiều nhất.
                 interval: LiveNet.isGAS ? 4000 : 900,
-                maxInterval: LiveNet.isGAS ? 20000 : 3000,
+                maxInterval: LiveNet.isGAS ? lobbyMax : 3000,
                 playerId: MYID,
                 onError: function (e, n) {
                     if (e && e.fatal) {          // phòng không còn -> đừng đổ cho mạng
@@ -2469,6 +2494,30 @@
             return Math.min(90, Math.max(25, Math.round(CLASS_N * 2.6)));
         }
 
+        /**
+         * Tải đề sẵn ngay khi thầy cô vừa chọn xong, lúc cả lớp còn đang chọn
+         * trang phục ở sảnh chờ.
+         *
+         * Không làm vậy thì lúc bấm bắt đầu, mỗi em phải chờ HAI lượt gọi nối
+         * đuôi nhau (biết đã bắt đầu -> rồi mới xin đề), mà 35 em cùng xin một
+         * lúc thì còn phải xếp hàng. Tải trước KHÔNG tốn thêm lượt gọi nào cả:
+         * chỉ là dời lượt xin đề lên sớm hơn, và các em xin rải rác chứ không
+         * dồn cục.
+         */
+        let PRE = null, preBusy = false;
+        function prefetchQuiz(meta) {
+            if (!meta || !meta.v || preBusy) return;
+            if (PRE && PRE.v === meta.v) return;      // bản đang giữ vẫn đúng
+            preBusy = true;
+            LiveNet.getQuiz(PIN)
+                .then(function (d) {
+                    // Thầy cô đổi đề ngay lúc đang tải thì bỏ, lượt sau lấy lại
+                    if (d && d.quiz && d.quiz.v === meta.v) PRE = d.quiz;
+                })
+                .catch(function () { })
+                .then(function () { preBusy = false; });
+        }
+
         function enterQuiz() {
             if (playing) return;
             playing = true;
@@ -2481,8 +2530,14 @@
             show('s4');
             $('qAva').textContent = (NAME || '?').trim().charAt(0).toUpperCase();
             $('qName').textContent = NAME || 'Em';
-            $('qText').textContent = 'Đang tải đề…';
             $('qOpts').innerHTML = '';
+            if (PRE) {                       // đã tải sẵn từ sảnh chờ -> vào bài ngay
+                QUIZ = PRE;
+                prepMath(QUIZ.qs);
+                startQuiz();
+                return;
+            }
+            $('qText').textContent = 'Đang tải đề…';
             fetchQuiz(0);
         }
 
