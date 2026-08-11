@@ -413,79 +413,191 @@
             transform: scale(.96)
         }
 
-        /* ===== màn làm bài ===== */
-        #s4 {
-            padding-top: max(10px, env(safe-area-inset-top))
+        /* =====================================================================
+         *  MÀN LÀM BÀI & KẾT QUẢ — mượn nguyên giao diện "kẹo ngọt" của bài
+         *  kiểm tra (public/quiz_template.html): nền pastel, thẻ trắng bo tròn,
+         *  nút dày có bóng đổ dưới đáy, chữ Nunito.
+         *
+         *  Chỉ đổi ở HAI màn này. Sảnh chờ vẫn giữ nền tím tối vì sân khấu và
+         *  nhân vật chibi được vẽ để nổi trên nền tối; bê nền sáng vào là mất
+         *  hết đèn sân khấu. Việc đổi tông giữa chừng lại thành có lợi: học
+         *  sinh cảm nhận rõ "hết giờ chơi, vào phòng thi".
+         * ===================================================================== */
+        body.quiz-mode {
+            --ink: #2b2340;
+            --ink-soft: #6b647f;
+            --paper: #ffffff;
+            --line: #ece7f7;
+            --c-start: #9BB7D4;
+            --c-mid: #C74375;
+            --c-end: #BF1932;
+            --good: #22c55e;
+            --good-d: #15803d;
+            --bad: #fb7185;
+            --bad-d: #be123c;
+            --gold: #fbbf24;
+            --gold-d: #b45309;
+            color: var(--ink);
+            background: #fdf7ff;
+            background-image:
+                radial-gradient(80% 55% at 10% -5%, var(--c-start) 0%, transparent 60%),
+                radial-gradient(70% 50% at 100% 0%, var(--c-mid) 0%, transparent 55%),
+                radial-gradient(90% 60% at 50% 110%, var(--c-end) 0%, transparent 60%),
+                linear-gradient(180deg, #fdf7ff, #eef4ff);
+            background-attachment: fixed;
+            font-family: 'Nunito', system-ui, sans-serif
         }
 
-        .qtop {
+        #s4,
+        #s5 {
+            color: var(--ink);
+            padding: max(10px, env(safe-area-inset-top)) 12px max(14px, env(safe-area-inset-bottom))
+        }
+
+        /* ---------- thanh trạng thái trên cùng ---------- */
+        .qhud {
+            background: rgba(255, 255, 255, .82);
+            backdrop-filter: blur(14px);
+            border: 2px solid var(--line);
+            border-radius: 24px;
+            padding: 10px 12px;
+            box-shadow: 0 6px 18px rgba(70, 50, 120, .10)
+        }
+
+        .qhud-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            font-size: 13.5px;
-            color: var(--dim)
+            gap: 10px
         }
 
-        .qtop b {
-            color: var(--tx);
-            font-size: 17px
+        .qava {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            flex: 0 0 40px;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(140deg, var(--c-mid), var(--c-end));
+            box-shadow: 0 3px 0 rgba(0, 0, 0, .15)
         }
 
-        .timer {
-            height: 7px;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, .12);
+        .qname {
+            font-weight: 800;
+            font-size: 15px;
+            line-height: 1.1;
+            white-space: nowrap;
             overflow: hidden;
-            margin: 9px 0 4px
+            text-overflow: ellipsis
+        }
+
+        .qsub {
+            font-size: 11.5px;
+            color: var(--ink-soft);
+            font-weight: 700
+        }
+
+        .xp-pill {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(180deg, #fde68a, var(--gold));
+            color: #7c2d12;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            box-shadow: 0 3px 0 var(--gold-d);
+            white-space: nowrap
+        }
+
+        .xp-track {
+            height: 14px;
+            background: #ece7f7;
+            border-radius: 999px;
+            margin-top: 9px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(80, 60, 130, .18)
+        }
+
+        .xp-track i {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #fbbf24, #f97316, var(--c-end));
+            transition: width .55s cubic-bezier(.34, 1.56, .64, 1)
+        }
+
+        /* đồng hồ từng câu — vẫn là thanh, nhưng tông kẹo */
+        .timer {
+            height: 10px;
+            border-radius: 999px;
+            background: #ece7f7;
+            overflow: hidden;
+            margin: 9px 0 0;
+            box-shadow: inset 0 2px 4px rgba(80, 60, 130, .18)
         }
 
         .timer i {
             display: block;
             height: 100%;
             width: 100%;
-            background: linear-gradient(90deg, #6ee7a8, #ffd76a);
+            background: linear-gradient(90deg, #34d399, #a3e635);
             transform-origin: left
         }
 
         .timer.low i {
-            background: linear-gradient(90deg, #ff8a5c, #ff5d7e)
+            background: linear-gradient(90deg, #fb923c, var(--bad))
         }
 
+        /* ---------- thân câu hỏi ---------- */
         .qbody {
             flex: 1;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            padding: 10px 2px
+            gap: 14px;
+            padding: 14px 2px 4px
+        }
+
+        .qcard {
+            background: var(--paper);
+            border: 2px solid var(--line);
+            border-radius: 24px;
+            box-shadow: 0 10px 24px rgba(70, 50, 120, .10);
+            padding: 18px 16px
         }
 
         .qctx {
-            background: rgba(255, 255, 255, .06);
-            border-left: 3px solid var(--acc);
-            border-radius: 0 12px 12px 0;
+            background: #f6f2ff;
+            border-left: 4px solid var(--c-mid);
+            border-radius: 0 14px 14px 0;
             padding: 10px 13px;
             font-size: 14px;
-            color: #d9d4ff
+            color: var(--ink-soft);
+            font-weight: 600;
+            margin-bottom: 12px
         }
 
         .qtext {
             font-size: 19px;
-            font-weight: 700;
+            font-weight: 800;
             line-height: 1.45
         }
 
         .qtext img,
         .qrev img {
             max-width: 100%;
-            border-radius: 12px
+            border-radius: 14px
         }
 
         .opts {
             display: flex;
             flex-direction: column;
-            gap: 10px
+            gap: 12px
         }
 
         .opt {
@@ -494,42 +606,94 @@
             gap: 12px;
             width: 100%;
             text-align: left;
-            background: rgba(255, 255, 255, .07);
-            border: 1px solid var(--line);
-            color: var(--tx);
-            border-radius: 16px;
-            padding: 14px;
-            font-size: 16.5px;
-            min-height: 58px;
-            cursor: pointer;
-            transition: transform .12s, background .18s
+            background: linear-gradient(180deg, #fff, #faf8ff);
+            border: 2px solid var(--line);
+            color: var(--ink);
+            border-radius: 18px;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-weight: 700;
+            min-height: 60px;
+            box-shadow: 0 4px 0 #e6e0f5;
+            transition: transform .12s ease, box-shadow .12s ease, background .18s;
+            cursor: pointer
         }
 
         .opt:active {
-            transform: scale(.98)
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #e6e0f5
         }
 
         .opt.pick {
-            background: linear-gradient(135deg, var(--acc), var(--acc2));
+            background: linear-gradient(180deg, var(--c-mid), var(--c-end));
             border-color: transparent;
-            font-weight: 700
+            color: #fff;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, .2)
         }
 
         .opt .k {
-            flex: 0 0 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, .35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900
+            flex: 0 0 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: #f1ecfd;
+            color: var(--c-end);
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            font-size: 15px;
+            transition: all .18s
+        }
+
+        .opt.pick .k {
+            background: rgba(255, 255, 255, .92);
+            transform: scale(1.06)
+        }
+
+        .opt .k.ok {
+            background: #dcfce7;
+            color: var(--good-d)
+        }
+
+        .opt .k.no {
+            background: #ffe4e6;
+            color: var(--bad-d)
         }
 
         .opt.tf {
-            justify-content: center;
-            font-size: 19px;
+            font-size: 18px;
             font-weight: 800
+        }
+
+        #s4 input,
+        #s5 input {
+            background: #fff;
+            border: 2px solid var(--line);
+            color: var(--ink);
+            border-radius: 18px;
+            font-weight: 700;
+            box-shadow: 0 4px 0 #e6e0f5
+        }
+
+        #s4 input::placeholder {
+            color: #a49dba
+        }
+
+        .btn-candy {
+            background: linear-gradient(180deg, var(--c-mid), var(--c-end));
+            border: 0;
+            color: #fff;
+            font-weight: 800;
+            border-radius: 999px;
+            min-height: 54px;
+            width: 100%;
+            font-size: 17px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, .18)
+        }
+
+        .btn-candy:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, .18)
         }
 
         .streak {
@@ -541,7 +705,8 @@
             font-weight: 900;
             opacity: 0;
             pointer-events: none;
-            text-shadow: 0 6px 22px rgba(0, 0, 0, .6)
+            color: var(--ink);
+            text-shadow: 0 6px 22px rgba(255, 255, 255, .9), 0 2px 6px rgba(120, 90, 180, .35)
         }
 
         .streak.go {
@@ -567,44 +732,57 @@
 
         /* ===== màn kết quả ===== */
         #s5 .big {
+            background: var(--paper);
+            border: 2px solid var(--line);
+            border-radius: 24px;
+            box-shadow: 0 10px 24px rgba(70, 50, 120, .10);
             text-align: center;
-            padding: 8px 0 4px
+            padding: 18px 14px 16px
+        }
+
+        #s5 .medal {
+            font-size: 46px;
+            line-height: 1
         }
 
         #s5 .big .sc {
-            font-size: 52px;
+            font-size: 46px;
             font-weight: 900;
-            line-height: 1.1;
-            background: linear-gradient(120deg, #fff, #b9a6ff, #ff9ecb);
+            line-height: 1.15;
+            background: linear-gradient(120deg, var(--c-mid), var(--c-end));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent
         }
 
         #s5 .big .rk {
-            font-size: 15px;
-            color: var(--dim)
+            font-size: 14.5px;
+            color: var(--ink-soft);
+            font-weight: 700
         }
 
         .top5 {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
             margin: 12px 0
         }
 
         .top5 div {
             display: flex;
             justify-content: space-between;
-            background: rgba(255, 255, 255, .06);
-            border-radius: 10px;
-            padding: 7px 12px;
-            font-size: 14px
+            background: rgba(255, 255, 255, .8);
+            border: 2px solid var(--line);
+            border-radius: 14px;
+            padding: 8px 13px;
+            font-size: 14px;
+            font-weight: 700
         }
 
         .top5 div.me {
-            background: linear-gradient(90deg, rgba(124, 92, 255, .5), rgba(255, 93, 158, .28));
-            font-weight: 700
+            background: linear-gradient(180deg, var(--c-mid), var(--c-end));
+            border-color: transparent;
+            color: #fff
         }
 
         .qrev {
@@ -612,40 +790,44 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             padding-bottom: 8px
         }
 
         .qrev .c {
-            background: rgba(255, 255, 255, .06);
-            border: 1px solid var(--line);
-            border-left: 4px solid #6ee7a8;
-            border-radius: 12px;
-            padding: 12px 14px;
-            font-size: 14.5px
+            background: var(--paper);
+            border: 2px solid var(--line);
+            border-left: 6px solid var(--good);
+            border-radius: 18px;
+            padding: 13px 15px;
+            font-size: 14.5px;
+            box-shadow: 0 6px 16px rgba(70, 50, 120, .08)
         }
 
         .qrev .c.bad {
-            border-left-color: #ff5d7e
+            border-left-color: var(--bad)
         }
 
         .qrev .c .h {
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 6px
         }
 
         .qrev .c .a {
-            color: var(--dim);
+            color: var(--ink-soft);
             font-size: 13.5px;
-            margin-top: 5px
+            margin-top: 5px;
+            font-weight: 600
         }
 
         .qrev .c .x {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px dashed var(--line);
+            margin-top: 9px;
+            padding-top: 9px;
+            border-top: 2px dashed var(--line);
             font-size: 13.5px;
-            color: #d9d4ff
+            color: #5b5470;
+            background: #fffdf5;
+            border-radius: 0 0 10px 10px
         }
 
         @keyframes d {
@@ -724,15 +906,24 @@
 
     <!-- ===== 4. LÀM BÀI ===== -->
     <div class="screen" id="s4">
-        <div class="qtop">
-            <span>Câu <b id="qNo">1</b> / <span id="qTot">10</span></span>
-            <span id="qStreak"></span>
-            <span>Điểm <b id="qScore">0</b></span>
+        <div class="qhud">
+            <div class="qhud-row">
+                <div class="qava" id="qAva">?</div>
+                <div style="min-width:0">
+                    <div class="qname" id="qName">Em</div>
+                    <div class="qsub">Câu <b id="qNo">1</b> / <span id="qTot">10</span> <span
+                            id="qStreak"></span></div>
+                </div>
+                <div class="xp-pill">⭐ <span id="qScore">0</span> XP</div>
+            </div>
+            <div class="xp-track"><i id="qProg"></i></div>
+            <div class="timer" id="qTimer"><i></i></div>
         </div>
-        <div class="timer" id="qTimer"><i></i></div>
         <div class="qbody">
-            <div class="qctx" id="qCtx" style="display:none"></div>
-            <div class="qtext" id="qText">…</div>
+            <div class="qcard">
+                <div class="qctx" id="qCtx" style="display:none"></div>
+                <div class="qtext" id="qText">…</div>
+            </div>
             <div class="opts" id="qOpts"></div>
         </div>
         <div class="streak" id="qPop"></div>
@@ -741,12 +932,13 @@
     <!-- ===== 5. KẾT QUẢ ===== -->
     <div class="screen" id="s5">
         <div class="big">
+            <div class="medal" id="rMedal">🌱</div>
             <div class="sc" id="rScore">0</div>
             <div class="rk" id="rRank">Đang gửi kết quả…</div>
         </div>
         <div class="top5" id="rTop"></div>
         <div class="qrev" id="rRev"></div>
-        <button class="btn ghost" id="rAgain">🔄 Xem lại thứ hạng</button>
+        <button class="btn-candy" id="rAgain">🔄 Xem lại thứ hạng</button>
     </div>
 
     <script>window.LIVE_ENDPOINT = "https://script.google.com/macros/s/AKfycbxn39tDwvyGq6rn4AXWv_1YicZYREIwNuaMD95dnZz3DkMlcr1t2CMnw_7Nl7HhaH0Raw/exec";</script>
@@ -1266,6 +1458,8 @@
   100%{transform:scale(1.25);opacity:0}}
 `;
 
+  const FX_SHOW = 5200;   // hiệu ứng tương tác chạy bao lâu trên MỘT màn hình
+
   let cssDone = false;
   function injectCSS() {
     if (cssDone) return; cssDone = true;
@@ -1325,7 +1519,32 @@
 
     const nodes = new Map();   // id -> element
     const fxNodes = new Map(); // khoá cặp -> lớp icon trùm lên hai nhân vật
-    let lastList = [];
+    const fxDone = new Map();  // khoá cặp -> lúc hiệu ứng hết hạn trên máy này
+    const localIx = new Map(); // id người rủ -> màn tương tác do CHÍNH MÁY NÀY khơi ra
+    let lastList = [], fxTimer = null;
+
+    /**
+     * Trộn màn tương tác "tự vẽ trước" của máy này vào danh sách nhận từ máy chủ.
+     *
+     * Bấm xong mà ngồi chờ Apps Script trả lời rồi mới vẽ thì mất khoảng 3 giây —
+     * lâu tới mức em nào cũng tưởng bấm hụt và bấm lại. Nên máy tự vẽ ngay, còn
+     * lượt gọi kia cứ đi đường của nó để các máy khác biết.
+     *
+     * Sau khi diễn xong, tin của MÁY CHỦ về đúng màn đó bị nuốt trong 25 giây
+     * (`until`) — nếu không thì lát nữa nó vọng về và trái tim nở thêm lần nữa,
+     * vì dấu thời gian của máy chủ khác dấu thời gian máy này nên bị coi là màn mới.
+     */
+    function withLocalIx(list) {
+      const now = Date.now();
+      localIx.forEach(function (v, k) { if (now > v.until) localIx.delete(k); });
+      if (!localIx.size) return list;
+      return list.map(function (p) {
+        const v = localIx.get(p.id);
+        if (!v) return p;
+        const mine = now < v.t + FX_SHOW ? { w: v.w, k: v.k, t: v.t } : null;
+        return Object.assign({}, p, { ix: mine });
+      });
+    }
 
     // Đổi cỡ cửa sổ / xoay ngang điện thoại -> xếp lại chỗ đứng
     let relayout = null;
@@ -1378,6 +1597,25 @@
      * được ghép, người sau bị bỏ qua, chứ không thì một nhân vật bị kéo về hai
      * phía cùng lúc.
      */
+    /**
+     * Lọc ra những cặp CÒN ĐANG DIỄN trên đúng màn hình này.
+     *
+     * Máy chủ giữ tin tương tác tới 22 giây để máy nào hỏi thưa cũng nhận được,
+     * nhưng hiệu ứng chỉ nên chạy 5 giây. Nên thời gian diễn do MÁY NÀY tự đếm
+     * từ lúc nó nhìn thấy, chứ không lấy hiệu số với `ix.t`: `ix.t` là giờ của
+     * máy chủ Google, còn đồng hồ điện thoại học sinh lệch cả phút là chuyện
+     * thường — trừ nhau ra thì hiệu ứng khi thì không hiện, khi thì dính mãi.
+     */
+    function livePairs(list) {
+      const now = Date.now();
+      fxDone.forEach(function (end, k) { if (now - end > 120000) fxDone.delete(k); });
+      return pairsOf(list).filter(function (pr) {
+        const end = fxDone.get(pr.key);
+        if (end === undefined) { fxDone.set(pr.key, now + FX_SHOW); return true; }
+        return now < end;
+      });
+    }
+
     function pairsOf(list) {
       const byId = new Map(list.map(p => [p.id, p]));
       const used = new Set(), out = [];
@@ -1407,13 +1645,13 @@
       return out;
     }
 
-    function sync(list) {
-      list = list || [];
-      lastList = list;
+    function sync(raw) {
+      lastList = raw || [];
+      const list = withLocalIx(lastList);
       emptyEl.style.display = list.length ? 'none' : 'flex';
 
       const W = el.clientWidth || 800, H = el.clientHeight || 400;
-      const pairs = pairsOf(list);
+      const pairs = livePairs(list);
       const order = orderFor(list, pairs);
       const busy = new Set();
       pairs.forEach(pr => { busy.add(pr.a.id); busy.add(pr.b.id); });
@@ -1460,6 +1698,17 @@
 
       syncFx(pairs);
 
+      // Sân khấu chỉ vẽ lại mỗi khi có tin mới từ máy chủ, mà điện thoại có
+      // lúc 20 giây mới hỏi một lần. Không tự hẹn giờ thì hiệu ứng 5 giây sẽ
+      // dính trên màn hình tới tận lượt hỏi sau — hẹn giờ ở đây là việc trong
+      // máy, không tốn thêm lượt gọi nào.
+      clearTimeout(fxTimer);
+      if (pairs.length) {
+        let soonest = Infinity;
+        pairs.forEach(function (pr) { soonest = Math.min(soonest, fxDone.get(pr.key) - Date.now()); });
+        fxTimer = setTimeout(function () { sync(lastList); }, Math.max(150, soonest + 60));
+      }
+
       nodes.forEach(function (node, id) {
         if (seen.has(id)) return;
         node.classList.add('ls-out');
@@ -1503,7 +1752,19 @@
       el: el,
       sync: sync,
       count: function () { return lastList.length; },
-      setMe: function (id) { opt.meId = id; sync(lastList); }
+      setMe: function (id) { opt.meId = id; sync(lastList); },
+
+      /** Vẽ ngay màn tương tác vừa bấm, không chờ máy chủ trả lời. */
+      playLocal: function (fromId, toId, kind) {
+        const t = Date.now();
+        localIx.set(fromId, { w: toId, k: kind, t: t, until: t + 25000 });
+        sync(lastList);
+      },
+      /** Máy chủ từ chối thì rút lại màn vừa vẽ. */
+      cancelLocal: function (fromId) {
+        if (!localIx.delete(fromId)) return;
+        sync(lastList);
+      }
     };
   }
 
@@ -1533,8 +1794,8 @@
   if (!ep && typeof location !== 'undefined') {
     try { ep = new URLSearchParams(location.search).get('api') || ''; } catch (e) { }
   }
-  const ENDPOINT = ep || '/live';
-  const IS_GAS = /script\.google\.com/.test(ENDPOINT);
+  let ENDPOINT = ep || '/live';
+  let IS_GAS = /script\.google\.com/.test(ENDPOINT);
 
   function call(action, payload) {
     const body = JSON.stringify(Object.assign({ action: action }, payload || {}));
@@ -1599,6 +1860,19 @@
     isGAS: IS_GAS,
     call: call,
     Poller: Poller,
+
+    /**
+     * Đổi chỗ chạy phòng ngay giữa chừng (màn hình lớp gọi khi bật đường hầm).
+     * Nhớ tạo lại Poller sau khi gọi: nhịp hỏi được chốt lúc tạo, mà chạy tại
+     * máy thì hỏi dày gấp năm lần chạy trên Google.
+     */
+    use: function (endpoint) {
+      ENDPOINT = endpoint || '/live';
+      IS_GAS = /script\.google\.com/.test(ENDPOINT);
+      root.LiveNet.endpoint = ENDPOINT;
+      root.LiveNet.isGAS = IS_GAS;
+      return ENDPOINT;
+    },
 
     createRoom: function (title, quizId) { return call('liveCreate', { title: title, quizId: quizId || '' }); },
     join: function (pin, name, outfit) { return call('liveJoin', { pin: pin, name: name, outfit: outfit }); },
@@ -1850,7 +2124,10 @@
         return {
             quiz: {
                 t: clean(opt.title) || 'Phòng ôn tập',
-                lim: Number(opt.limit) > 0 ? Number(opt.limit) : DEFAULT_LIMIT,
+                // 0 = KHÔNG giới hạn giờ, và đó là một lựa chọn thật sự — đừng
+                // gộp chung với "thầy cô chưa chọn gì" rồi thay bằng mặc định.
+                lim: (opt.limit === undefined || opt.limit === null || opt.limit === '')
+                    ? DEFAULT_LIMIT : Math.max(0, Number(opt.limit) || 0),
                 db: clean(opt.dbId),
                 dbn: clean(opt.dbName),
                 qs: pool
@@ -1896,6 +2173,10 @@
      */
     function points(correct, ms, limitSec, streak) {
         if (!correct) return 0;
+        // Chọn "không giới hạn giờ" (limitSec = 0) thì màn hình không có đồng hồ
+        // đếm ngược, nhưng thưởng tốc độ VẪN tính theo thước 30 giây — bỏ hẳn
+        // phần thưởng này thì mọi em làm đúng như nhau đều bằng điểm nhau và
+        // bảng xếp hạng không còn phân được ai với ai.
         var lim = (Number(limitSec) || DEFAULT_LIMIT) * 1000;
         var left = Math.max(0, 1 - (Number(ms) || 0) / lim);
         var bonus = Math.round(SPEED_POINT * left);
@@ -2117,13 +2398,19 @@
                 if (!kind || !ixTarget) return;
                 if (navigator.vibrate) navigator.vibrate(20);
                 ixLast = Date.now();
-                const name = ixTarget.name;
-                LiveNet.interact(PIN, MYID, ixTarget.id, kind)
+                const name = ixTarget.name, id = ixTarget.id;
+                // Vẽ ngay tại máy. Chờ Apps Script trả lời rồi mới vẽ là mất
+                // khoảng 3 giây — lâu tới mức em nào cũng tưởng bấm hụt.
+                if (stage) stage.playLocal(MYID, id, kind);
+                LiveNet.interact(PIN, MYID, id, kind)
                     .then(function () {
                         toast((kind === 'love' ? '💖 Đã ôm ' : '💥 Đang tỉ thí với ') + name);
                         if (poller) poller.refreshNow();
                     })
-                    .catch(function (e) { toast(e.message || 'Không rủ được, thử lại nhé.'); });
+                    .catch(function (e) {
+                        if (stage) stage.cancelLocal(MYID);      // máy chủ không nhận thì rút lại
+                        toast(e.message || 'Không rủ được, thử lại nhé.');
+                    });
                 ixTarget = null;
             };
         });
@@ -2162,10 +2449,27 @@
             if (playing) return;
             playing = true;
             if (poller) poller.stop();
+            // Đổi sang tông "kẹo ngọt" của bài kiểm tra. Chỉ nạp phông Nunito
+            // lúc này, đừng nạp sẵn từ đầu — sảnh chờ không dùng tới mà điện
+            // thoại 4G thì phải chờ thêm một lượt tải.
+            document.body.classList.add('quiz-mode');
+            loadFont();
             show('s4');
+            $('qAva').textContent = (NAME || '?').trim().charAt(0).toUpperCase();
+            $('qName').textContent = NAME || 'Em';
             $('qText').textContent = 'Đang tải đề…';
             $('qOpts').innerHTML = '';
             fetchQuiz(0);
+        }
+
+        let fontDone = false;
+        function loadFont() {
+            if (fontDone) return;
+            fontDone = true;
+            const l = document.createElement('link');
+            l.rel = 'stylesheet';
+            l.href = 'https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap';
+            document.head.appendChild(l);
         }
 
         function fetchQuiz(tries) {
@@ -2189,8 +2493,52 @@
         function startQuiz() {
             QI = 0; SCORE = 0; OKN = 0; STREAK = 0; ANS = []; playT0 = Date.now();
             $('qTot').textContent = QUIZ.qs.length;
-            reporter = LiveNet.Reporter(PIN, MYID, onRank, { every: reportEvery() });
+            reporter = DEMO
+                ? { push: function () { }, finish: function () { }, stop: function () { } }
+                : LiveNet.Reporter(PIN, MYID, onRank, { every: reportEvery() });
             renderQ();
+        }
+
+        /* ---------- xem thử giao diện làm bài: live_player.html?demo=1 ----------
+           Không vào phòng, không gọi mạng, không lưu điểm — chỉ để soi giao diện
+           trên đúng cái điện thoại học sinh sẽ dùng, khỏi phải mở cả một phòng
+           chơi mỗi lần chỉnh vài dòng CSS. */
+        let DEMO = false;
+        // Phải chờ CẢ TỆP chạy xong rồi mới dựng màn xem thử: `renderQ` có đụng
+        // tới `mathOn` khai báo mãi cuối tệp, gọi thẳng ở đây là lỗi ngay.
+        // Đường bình thường không dính vì nó chỉ chạy sau khi máy chủ trả đề về.
+        if (qp.get('demo')) setTimeout(startDemo, 0);
+
+        function startDemo() {
+            DEMO = true; playing = true; NAME = 'Xem thử'; MYID = 'demo'; PIN = '000000';
+            document.body.classList.add('quiz-mode');
+            loadFont();
+            show('s4');
+            $('qAva').textContent = 'X';
+            $('qName').textContent = NAME;
+            QUIZ = {
+                t: 'Xem thử', lim: Number(qp.get('lim') || 30),
+                qs: [
+                    {
+                        i: 'd1', t: 'mc', s: 'Vật lý',
+                        q: 'Áp suất chất lỏng tác dụng lên vật nhúng trong nó theo phương nào?',
+                        o: ['Chỉ từ trên xuống', 'Theo mọi phương vuông góc với bề mặt vật',
+                            'Chỉ thẳng đứng từ dưới lên', 'Không phụ thuộc phương nào'],
+                        a: 1, x: 'Chất lỏng gây áp suất theo mọi phương lên đáy bình, thành bình và vật trong lòng nó.'
+                    },
+                    {
+                        i: 'd2', t: 'tf', s: 'Vật lý', c: 'Cho các mệnh đề về áp suất khí quyển:',
+                        q: 'Càng lên cao thì áp suất khí quyển càng giảm.', a: true,
+                        x: 'Lên cao thì cột không khí phía trên mỏng đi nên áp suất giảm.'
+                    },
+                    {
+                        i: 'd3', t: 'fib', s: 'Vật lý',
+                        q: 'Một vật có khối lượng 1,5 kg thì trọng lượng là bao nhiêu niutơn? (lấy g = 10)',
+                        a: '15'
+                    }
+                ]
+            };
+            startQuiz();
         }
 
         function renderQ() {
@@ -2198,7 +2546,8 @@
             const it = QUIZ.qs[QI];
             $('qNo').textContent = QI + 1;
             $('qScore').textContent = SCORE;
-            $('qStreak').textContent = STREAK >= 3 ? '🔥 ' + STREAK : '';
+            $('qStreak').textContent = STREAK >= 3 ? '· 🔥 ' + STREAK + ' câu liền' : '';
+            $('qProg').style.width = Math.round(QI / QUIZ.qs.length * 100) + '%';
             $('qCtx').style.display = it.c ? 'block' : 'none';
             if (it.c) $('qCtx').innerHTML = it.c;
             $('qText').innerHTML = it.q + (it.m ? '<br><img src="' + it.m + '" alt="">' : '');
@@ -2214,10 +2563,10 @@
                     box.appendChild(b);
                 });
             } else if (it.t === 'tf') {
-                [['Đúng', true], ['Sai', false]].forEach(function (p) {
+                [['Đúng', true, 'ok', '✓'], ['Sai', false, 'no', '✕']].forEach(function (p) {
                     const b = document.createElement('button');
                     b.className = 'opt tf';
-                    b.textContent = p[0];
+                    b.innerHTML = '<span class="k ' + p[2] + '">' + p[3] + '</span><span>' + p[0] + '</span>';
                     b.onclick = function () { pick(b, p[1]); };
                     box.appendChild(b);
                 });
@@ -2226,7 +2575,7 @@
                 inp.placeholder = 'Điền câu trả lời…';
                 inp.autocomplete = 'off';
                 const b = document.createElement('button');
-                b.className = 'btn'; b.textContent = 'Trả lời →';
+                b.className = 'btn-candy'; b.textContent = 'Trả lời →';
                 b.onclick = function () { if (inp.value.trim()) pick(b, inp.value.trim()); };
                 inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') b.onclick(); });
                 box.appendChild(inp); box.appendChild(b);
@@ -2309,6 +2658,14 @@
             show('s5');
             $('rScore').textContent = SCORE;
             $('rRank').textContent = 'Đúng ' + OKN + '/' + QUIZ.qs.length + ' câu · đang gửi kết quả…';
+            // Huy chương lấy đúng mốc của bài kiểm tra, để hai bên nói cùng ngôn ngữ
+            const pct = Math.round(OKN / QUIZ.qs.length * 100);
+            $('rMedal').textContent = pct === 100 ? '👑' : pct >= 80 ? '🏆' : pct >= 65 ? '🥈' : pct >= 50 ? '🥉' : '🌱';
+            $('rMedal').title = pct === 100 ? 'Tuyệt đối' : pct >= 80 ? 'Cao thủ' : pct >= 65 ? 'Khá cứng' : pct >= 50 ? 'Đang lên' : 'Cần luyện thêm';
+            if (DEMO) {
+                $('rRank').innerHTML = 'Đúng <b>' + OKN + '/' + QUIZ.qs.length + '</b> câu · bản xem thử, không lưu điểm';
+                $('rAgain').style.display = 'none';
+            }
             paintReview();
         }
 
