@@ -1807,11 +1807,24 @@
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: body
     }).then(function (r) {
-      if (!r.ok) throw new Error('Lỗi mạng ' + r.status);
+      if (!r.ok) { const e = new Error('Lỗi mạng ' + r.status); e.network = true; throw e; }
       return r.json();
     }).then(function (d) {
-      if (d && d.error) throw new Error(d.error);
+      if (d && d.error) {
+        // Lỗi do MÁY CHỦ TRẢ LỜI, khác hẳn mất mạng. Gộp chung hai thứ này là
+        // chẩn đoán sai: phòng hết hạn mà lại hiện "Mất kết nối" thì thầy cô đi
+        // kiểm tra wifi, còn trang thì hỏi lại mãi một phòng không còn tồn tại.
+        const e = new Error(d.error);
+        e.server = true;
+        e.code = d.code || '';
+        // Hết đường cứu: có hỏi lại bao nhiêu lần nữa cũng vẫn vậy.
+        e.fatal = e.code === 'NO_ROOM' || /không tìm thấy phòng|hết hạn|đã đóng/i.test(d.error);
+        throw e;
+      }
       return d;
+    }, function (err) {
+      if (!err.network && !err.server) err.network = true;   // fetch hỏng = mất mạng thật
+      throw err;
     });
   }
 
@@ -1843,6 +1856,9 @@
         .catch(function (e) {
           fails++;
           if (opt.onError) opt.onError(e, fails);
+          // Phòng không còn thì hỏi lại vô ích, mà còn che mất lỗi thật khi
+          // thầy cô mở phòng mới. Dừng hẳn, để trang tự báo và mời tạo lại.
+          if (e && e.fatal) { stopped = true; clearTimeout(timer); return; }
           schedule(Math.min(fast * Math.pow(1.8, fails), 15000));
         });
     }
@@ -2370,7 +2386,15 @@
                 interval: LiveNet.isGAS ? 4000 : 900,
                 maxInterval: LiveNet.isGAS ? 20000 : 3000,
                 playerId: MYID,
-                onError: function (e, n) { if (n > 2) { $('waitMsg').className = ''; $('waitMsg').textContent = '📶 Mạng chập chờn, đang thử lại…'; } }
+                onError: function (e, n) {
+                    if (e && e.fatal) {          // phòng không còn -> đừng đổ cho mạng
+                        $('waitMsg').className = '';
+                        $('waitMsg').textContent = '🚪 Phòng đã đóng hoặc hết hạn. Em quét lại mã QR thầy cô đang chiếu nhé.';
+                    } else if (n > 2) {
+                        $('waitMsg').className = '';
+                        $('waitMsg').textContent = '📶 Mạng chập chờn, đang thử lại…';
+                    }
+                }
             }).start();
         }
 
